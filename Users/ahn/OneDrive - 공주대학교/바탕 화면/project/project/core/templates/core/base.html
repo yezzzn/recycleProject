@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width , initial-scale=1.0">
+
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <title>{%block title%}{%endblock%} | 메인</title>
+        
+        <title>Half Donut Chart Example</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>    
+            #barchartContainer {
+                width: 50%; /* 그래프 컨테이너를 화면 너비의 절반으로 설정 */
+                height: 400px;
+                float: left; /* 왼쪽으로 띄움 */
+            }
+            #contentContainer {
+                width: 50%; /* 내용 컨테이너를 화면 너비의 절반으로 설정 */
+                float: left; /* 왼쪽으로 띄움 */
+            }
+            #barChart {
+                width: 100%;
+                height: 100%;
+            }
+            #doughnutChart {
+                width: 100%;
+                height: 100%;
+            }
+            #doughnutchartContainer {
+                width: 200px; /* 그래프 컨테이너를 화면 너비의 절반으로 설정 */
+                height: 200px;
+                float: left; /* 왼쪽으로 띄움 */
+            }
+            #doughnutchartContainermain {
+                width: 200px; /* 그래프 컨테이너를 화면 너비의 절반으로 설정 */
+                height: 200px;
+                float: left;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="py-6 px-6 flex justify-between items-center border-b border-gray-200">
+            <a href="/" class="text-xl font-semibold">재활용품 페이지</a>
+ 
+            <div class="space-x-6 flex">
+                {% if request.user.is_authenticated%} {%comment%}유저가 로그인 하였을 때 {%endcomment%}
+                    {% comment %} <a class="px-6">{{request.user}}님 안녕하세요</a> 접속한 유저 이름을 불러옴 {%endcomment%} 
+                    {%if request.user.is_superuser %} {%comment%}접속한 유저가 슈퍼유저 권한이 있다면 {%endcomment%}
+                    <a href='/admin/' class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">관리</a> {% comment %}관리를 클릭 하였을 때 /admin/이라는 주소로 이동 {% endcomment %}
+                    <a href="{% url 'core:logout' %}" class="px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">로그아웃</a> {% comment "" %}로그아웃 클릭시 core/urls.py에 정의한 name의 logout 이라는 path를 실행 {% endcomment %}
+                    {%else%}
+                    <a href="{% url 'core:milli'%}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">마일리지</a>{% comment "" %}core/urls.py의 milli path실행{% endcomment %}
+                    <a href="{% url 'core:logout' %}" class="px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">로그아웃</a>{% comment "" %}core/urls.py의 logout path실행{% endcomment %}
+                    {%endif%}
+                {%else%}
+                    <a href="{%url 'core:signup'%}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">회원가입</a> {% comment "" %}core/urls.py의 signup path실행{% endcomment %}
+                    <a href="{%url 'core:login'%}" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">로그인</a>{% comment "" %}core/urls.py의 login path실행{% endcomment %}
+                {%endif%}
+            </div>
+        </nav>
+        <div class="px-6 py-6"> {% comment%} "content라는 블럭을 만듦으로 다른 html에서 content라는 블럭내부에 내용을 정의 할 수 있다. " {% endcomment %}
+            {%block content%} 
+            {%endblock%}
+        </div>
+        {% if request.user.is_authenticated%} {% comment "유저가 접속을 한 상태라면 아래 footer를 표시 " %}{% endcomment %}
+            <footer class="py-6 px-6 flex justify-between bg-gray-800">
+                <div class="w-2/3 pr-10">
+                    <h3 class="mb-5 font-semibold text-gray-400">정보</h3>
+                    <p class="text-lg text-gray-500">관련된 여러 페이지를 위한 링크입니다.</p>
+                </div>
+                <div class="w-1/3">
+                    <h3 class="mb-5 font-semibold text-gray-400">메뉴</h3>
+                    <ul class="space-y-2">
+                        <li><a href='{%url 'core:cindex'%}' class="text-lg text-teal-500 hover:text-teal-700">일반 사용자 페이지</a></li> {% comment  %}"footer창 내부에 core/urls.py의 cindex name의 path 실행"{% endcomment %}
+                        <li><a href='{%url 'core:milli'%}' class="text-lg text-teal-500 hover:text-teal-700">마일리지 페이지</a></li> {% comment  %}"core/urls.py의 milli name의 path 실행"{% endcomment %}
+                        <li><a href="{% url 'contact'%}" class="text-lg text-teal-500 hover:text-teal-700">콘텍트 페이지</a></li>{% comment  %}"core/urls.py의 contact name의 path 실행"{% endcomment %}
+                    </ul>
+                </div>
+            </footer>
+        {%endif%}
+    </body>
+</html>

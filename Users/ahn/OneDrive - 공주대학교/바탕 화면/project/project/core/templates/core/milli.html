@@ -1,0 +1,179 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+마일리지
+{% endblock %}
+
+{% block content %}
+<div style="text-align: right;">
+    <a href="{% url 'core:cindex' %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">홈으로</a>
+</div>
+<div class='ml-6 mr-6 mt-10 px-3 py-5 bg-gray-100 rounded-xl'>
+        
+    {% for dbs in datapoint %} {% comment "" %}pointdb에 존재하는 모든 요소만큼 dbs를 반복 {% endcomment %}
+    {% if dbs.user == first_user_name %} {% comment "" %}해당하는 dbs의 user(apartment)이름이 현재 접속한 거주민의 Apartdb에 존재하는 아파트 이름과 동일하다면 {% endcomment %}
+    <div class='flex'>
+        <p class='ml-2 text-xl font-semibold' >유저 마일리지 </p>
+        <p class='ml-2 text-xl font-semibold'style="margin-left: auto" >아파트 마일리지 </p>
+    </div>
+    <div class='flex'>
+        <p class='ml-2 text-xl font-semibold'id='data'>{{ userpoint }}</p> {% comment "" %}pointdb를 통해 반복하는 dbs에 해당하는 point정보를 가져옴 {% endcomment %}
+        <p class='ml-2 text-xl font-semibold'style="margin-left: auto"  >{{ dbs.pointuser }}</p> {% comment "" %}pointdb를 통해 반복하는 dbs에 해당하는 point정보를 가져옴 {% endcomment %}
+    </div>
+    
+    {% endif %}
+    {% endfor %}
+    <h2 class="mb-12 text-2xl text-center font-bold">마일리지 스토어</h2>
+    <div class="grid grid-cols-3 gap-6">
+        {% for img in image %} {% comment "" %}item_image에 저장되어있는 마일리지 상품의 가격, 이름, 이미지url에 해당하는 row를 img에 넣어 반복 {% endcomment %}
+        <div class="p-6 bg-white rounded-xl items-center text-center">
+            <div style="max-height: 600px; overflow: hidden;">
+                <img src="{{ img.image.url }}" class='rounded-t-xl'  style="width: 260px; height: 200px; object-fit: contain;"> {% comment "" %}img의 image필드에 url을 가져옴 {% endcomment %}
+            </div>
+            <div class="flex flex-col items-center justify-center" style="height: 200px;"> 
+                <p class="ml-2 text-xl font-semibold mb-6">{{ img.product }}</p> {% comment "" %}img의 product 필드를 가져옴 {% endcomment %}
+                <p class="ml-2 text-xl font-semibold mb-6" name='price'>{{ img.price }}</p> {% comment "" %}img의 price칠드 가져옴 {% endcomment %}
+                <button onclick='selectProduct({{ img.id }})' class="px-7 py-2 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">선택</button>{% comment "" %}img의 id에 해당하는 값을 매개변수로 보내 javascript의 selectProduct함수 실행{% endcomment %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+        
+</div>
+<div class='ml-6 mr-6 mt-5 px-3 py-5 bg-gray-100 rounded-xl' id='selected-products'>
+    <div class="flex justify-between items-center mb-3">
+        <p class='text-xl font-semibold'>선택한 상품:</p>
+        <button onclick='clearSelectedProducts()' class='px-4 py-2 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700'>전체 취소</button> {% comment "" %}전체 취소 버튼을 클릭하면 clearSelectedProducts()라는 함수를 호출 {% endcomment %}
+    </div>
+    <ul id='selected-products-list'></ul>
+    <div id="total-milli" class="text-xl font-semibold mt-3"></div>
+
+    {% for dbs in datapoint %} {% comment "" %}pointdb에 존재하는 모든 요소만큼 dbs를 반복 {% endcomment %}
+    {% if dbs.user == first_user_name %}{% comment "" %}해당하는 dbs의 user(apartment)이름이 현재 접속한 거주민의 Apartdb에 존재하는 아파트 이름과 동일하다면 {% endcomment %}
+    <button onclick="checkout({{ userpoint }},'{{username}}')" class="px-6 py-2 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">결제</button> {% comment "" %}포인트 정보와 pointdb의 이름정보를 매개변수로 checkout함수 호출 {% endcomment %}
+    {% endif %}
+    {% endfor %}
+
+</div>
+<script>
+    const selectedProducts = {}; // 선택한 상품을 객체로 저장하기 위해 선언 
+    let totalMilli = 0; // 총 milli 값을 저장할 변수
+    
+    function selectProduct(productNumber) {
+        let selectedProductText = '';
+        let milli = 0; // milli 값을 초기화
+    
+        switch (productNumber) { //받아온 매개변수에 따라 switch로 경우를 나눔 
+            case 1:
+                selectedProductText = '대형 폐기물 스티커 (5000)';
+                milli = 5000;
+                break;
+            case 2:
+                selectedProductText = '대형 폐기물 스티커 (3000)';
+                milli = 3000;
+                break;
+            case 3:
+                selectedProductText = '장바구니';
+                milli = 4000;
+                break;
+            case 4:
+                selectedProductText = '종량제 봉투 20L';
+                milli = 500;
+                break;
+            case 5:
+                selectedProductText = '종량제 봉투 5L';
+                milli = 200;
+                break;
+            case 6:
+                selectedProductText = '음식물 봉투 3L';
+                milli = 100;
+                break;
+
+            // 나머지 case도 처리
+    
+            default:
+                selectedProductText = '상품 내용 ' + productNumber;
+                milli = 0; // 기본값으로 0 설정
+                break;
+        }
+    
+        if (selectedProducts[selectedProductText]) {
+            // 이미 선택한 상품인 경우 개수를 증가
+            selectedProducts[selectedProductText].count++;
+        } else {
+            // 새로운 상품인 경우 객체에 추가
+            selectedProducts[selectedProductText] = {
+                count: 1, // 개수를 1로 초기화
+                milli: milli, // 해당 상품의 milli 값 저장
+            };
+        }
+    
+        totalMilli += milli; // milli 값을 누적
+        updateSelectedProductsList();
+        updateTotalMilli(); // 총 milli 값을 업데이트
+    }
+    
+    function updateSelectedProductsList() { // selectedProducts함수를 통해 선택한 상품을 업데이트 하는 함수이다. 
+        const selectedProductsList = document.getElementById('selected-products-list'); // selected-product-list의 값을 얻음
+        selectedProductsList.innerHTML = '';
+        for (const [productText, productData] of Object.entries(selectedProducts)) { //selectedproducts함수의 값을 key와 value값 쌍의 배열로 저장 
+            const listItem = document.createElement('li'); //새로운 li요소 만듬
+            listItem.textContent = `${productText} x ${productData.count}`; //listItem의 텍스트 내용 지정 
+            selectedProductsList.appendChild(listItem); //새로 생성한 리스트를 selectedProductsList라는 부모요소에 추가한다.
+        }
+    }
+    
+    function updateTotalMilli() {
+        const totalMilliElement = document.getElementById('total-milli'); //total-milli이라는 id를 가진 값 가져옴 
+        totalMilliElement.textContent = `총 소비 마일리지 : ${totalMilli}`; 
+    }
+    
+    function clearSelectedProducts() {
+        for (const [productText, productData] of Object.entries(selectedProducts)) {
+            totalMilli -= productData.milli * productData.count;
+        }
+        Object.keys(selectedProducts).forEach((key) => {
+            delete selectedProducts[key];
+        });
+        updateSelectedProductsList();
+        updateTotalMilli(); // 총 milli 값을 업데이트
+    }
+
+    function checkout(uspoint, user_id) {
+        console.log(uspoint);
+        console.log(user_id);
+        if (uspoint >= totalMilli) {
+            // 충분한 포인트가 있는 경우
+            uspoint -= totalMilli;
+         
+
+           fetch("http://주소/update_point/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              uspoint: uspoint,
+              user_id : user_id,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => console.log(data)/*result 가 무엇일 때 어떻게 처리할지 구성 */);
+
+            alert('결제가 완료되었습니다.'); // 또는 원하는 형태의 텍스트 표시 방식 사용
+            location.reload(true);
+        } else {
+            // 충분한 포인트가 없는 경우
+            alert('포인트가 부족합니다.'); // 또는 원하는 형태의 텍스트 표시 방식 사용
+            location.reload(true);
+        }
+       
+    }
+   
+        
+
+    
+    
+</script>
+
+{% endblock %}

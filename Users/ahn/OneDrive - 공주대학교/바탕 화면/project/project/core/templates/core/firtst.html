@@ -1,0 +1,32 @@
+{%extends 'core/base.html'%}
+
+{%block title%}
+시작 페이지
+{%endblock%}
+
+{%block content%} 
+<div class="text-center my-6 ">
+    <h1 class="py-3 font-semibold text-3xl">재활용품 분리 프로젝트</h1> 
+</div>
+{% if request.user.is_authenticated%} {% comment "" %}접속한 유저라면 {% endcomment %}
+<div class="text-center my-10 ">
+    {%if request.user.is_superuser %} {% comment "" %}접속한 유저가 슈퍼유저 권한 을 가지고 있다면 {% endcomment %}
+    <script>
+    window.location.href = "{% url 'core:index' %}"; //관리자 페이지로 이동 
+    </script>
+    {%else%}
+    <script>
+    window.location.href = "{% url 'core:email' %}"; //email (인증코드) 페이지로 이동 
+    </script>
+    {%endif%}
+</div>
+{%else%}
+<div class="text-center my-10 ">
+    <a href="{%url 'core:signup'%}" class="px-12 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">회원가입</a> {% comment "" %}회원가입을 누르면 core/urls.py의 signup이라는 이름을 가진 path 호출 {% endcomment %}
+</div>
+<div class="text-center my-10 ">
+    <a href="{%url 'core:login'%}" class="px-14 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">로그인</a>{% comment "" %}로그인을 누르면 core/urls.py의 login이라는 이름을 가진 path 호출 {% endcomment %}
+</div>
+{%endif%}
+
+{%endblock%}

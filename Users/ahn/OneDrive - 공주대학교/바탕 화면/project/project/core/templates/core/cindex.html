@@ -1,0 +1,331 @@
+{%extends 'core/base.html'%}
+
+{%block title%}
+일반사용자
+{%endblock%}
+
+{%block content%} {% comment  %}"core/base.html를 extends를 통해 가져왔으며 해당 html의 content라는블럭에 아래 내용을 넣음 "{% endcomment %}
+<div class='mt-6 px-6 py-12 bg-gray-100 rounded-xl'>
+    {% comment %} 아파트 이름 동 호수 유저 이름을 나타내는 코드  {% endcomment %}
+    {%for i in citizen_detect%}
+    <p class="px-6 text-right font-semibold text-green-600">{{i.apartment}} 아파트 {{i.dong}}동 {{i.ho}}호 {{request.user}}님 안녕하세요</p>
+    {%endfor%}
+
+    {% comment %} 아파트 불량률를 나타내는 코드  {% endcomment %}
+    <div class="flex justify-center space-x-6 bg-white rounded-xl m-6">
+        <div>
+            <div id="doughnutchartContainer"style="margin-left:18%; margin-bottom:100px;" class="m-6" >
+                <h2 class="text-xl m-2 ml-12">아파트 통계</h2>
+                <canvas id="doughnutChart"></canvas>
+            </div>
+            <script>
+                var doughnutctx = document.getElementById('doughnutChart').getContext('2d');
+                var doughnutChart = new Chart(doughnutctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                    data: [{{goodpercent_apt_data}},{{percent_error}}], // 데이터를 50, 50으로 설정하여 반반으로 나눕니다.
+                    backgroundColor: [
+                        'green', // 초록색으로 설정
+                        'red' // 빨간색으로 설정
+                    ]
+                    }],
+                    labels: ['아파트 재활용률', '아파트 불량률']
+                },
+                options: {
+                    cutout: '50%', // 절반으로 설정하기 위해 cutout 옵션을 사용합니다.
+                }
+                });
+            </script>
+            <style>
+                .vertical-line {
+                    border-left: 1px solid rgb(225, 225, 225); 
+                    height: 100%; 
+                    margin-left: 10px; 
+                }
+            </style>
+        
+            {% comment %} 개인 불량률를 나타내는 코드  {% endcomment %}
+            <div id="doughnutchartContainer"style="margin-left:18%; margin-bottom:100px;" class="m-6" >
+                <h2 class="text-xl m-2 ml-14 ">개인 통계</h2>
+                <canvas id="doughnutChartprivate"></canvas>
+            </div>
+            <script>
+                var doughnutctx = document.getElementById('doughnutChartprivate').getContext('2d');
+                var doughnutChartprivate = new Chart(doughnutctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                    data: [{{public_good_data}}, {{public_percent}}], // 데이터를 50, 50으로 설정하여 반반으로 나눕니다.
+                    backgroundColor: [
+                        'rgb(0,100,150)', // 초록색으로 설정
+                        'red' // 빨간색으로 설정
+                    ]
+                    }],
+                    labels: ['개인 재활용률', '개인 불량률']
+                },
+                options: {
+                    cutout: '50%', // 절반으로 설정하기 위해 cutout 옵션을 사용합니다.
+                }
+                });
+            </script>
+            <style>
+                .vertical-line {
+                    border-left: 1px solid rgb(225, 225, 225); 
+                    height: 100%; 
+                    margin-left: 10px; 
+                }
+            </style>
+        </div>
+
+        <div class="items-center">
+        <p class="mt-3 font-semibold">거주민이 존재하는 아파트 동 </p>
+        {%for i in apart_info%}
+        <div class="text-center bg-gray-50 rounded-xl" style="width:200px;height:50px;margin:auto;margin-top:5px;margin-top:10px;">
+            <a href="?dong={{i}}" class="font-semibold">{{i}}</a>
+        </div>
+        {%endfor%}
+        </div>
+
+        {% comment %} 세로 선을 그린 코드  {% endcomment %}
+        <nav class="flex justify-between items-center border-b border-gray-200">
+            <!-- 세로 선 추가 -->
+            <div class="vertical-line"></div>
+        </nav>
+
+
+        <div id="contentContainer"  >
+                <h2 class="text-2xl m-6 text-center">분리수거 통계</h2>
+            <div class="text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-1 text-center pl-6'>아파트 재활용품 수</p>
+                    <p class='m-1 text-right pr-6'>아파트 재활용률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{recycle}} 건</p> {% comment  %}"cap이 없는 glass 와 label이 붙은 plasticlb 두 수를 합쳐 view함수에서 error라는 이름으로 html로 보내었다."{% endcomment %}
+                    <p class='m-2 text-right pr-6'>{{goodpercent_apt_data}} %</p> {% comment  %}"error라는 데이터를 유저가 속해있는 아파트의 총 분리수거 개수로 나누고 100을 곱하여 %를 나타내었다."{% endcomment %}
+                </div>
+            </div>
+            <div class="text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>아파트 불량품목 수</p>
+                    <p class='m-2 text-right pr-6'>아파트 불량률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{error}} 건</p> {% comment  %}"cap이 없는 glass 와 label이 붙은 plasticlb 두 수를 합쳐 view함수에서 error라는 이름으로 html로 보내었다."{% endcomment %}
+                    <p class='m-2 text-right pr-6'>{{percent_error}} %</p> {% comment  %}"error라는 데이터를 유저가 속해있는 아파트의 총 분리수거 개수로 나누고 100을 곱하여 %를 나타내었다."{% endcomment %}
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>개인 재활용품 수</p>
+                    <p class='m-2 text-right pr-6'>개인 재활용률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{public_good}} 건</p> 
+                    <p class='m-2 text-right pr-6'>{{public_good_data}} %</p> 
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>개인 불량품목 수</p>
+                    <p class='m-2 text-right pr-6'>개인 불량률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{public_error}} 건</p> 
+                    <p class='m-2 text-right pr-6'>{{public_percent}} %</p> 
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 pl-6'>지불 관리비</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 pl-12'>{{citizenpay}} 원</p> 
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6 text-red-500">불량 품목 = 캡없는 유리병 , 라벨붙은 플라스틱</div>
+        </div>
+    </div>
+    
+    <div class='px-6 bg-gray-100 rounded-xl'>
+        <h2 class='mt-12 mb=12 text-2xl text-center'>재활용품 종류</h2>
+
+        <div class ='mt-6 grid grid-cols-3 gap-3'>
+            <div>
+                <a href="?odkind=plastic"id='plastic-link'> {% comment  %}"href 는 해당하는 경로로 이동하는데 #이라는 주소는 정의해놓지 않아 아무런 동작을 하지 않음 "{% endcomment %}
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">plastic</h2>
+                        <p class="text-gray-500">{{plastic}} 건</p> {% comment "" %}item_database에 존재하는 plastic수를 세 view함수에서 plastic으로 저장한 plastic이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="?odkind=glass"id="glass-link">
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">glass</h2>
+                        <p class="text-gray-500">{{glass}} 건</p>{% comment "" %}item_database에 존재하는 glass수를 세 view함수에서 glass으로 저장한 glass이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="?odkind=can" id="can-link"> {% comment  %}"href 는 해당하는 경로로 이동하는데 #이라는 주소는 정의해놓지 않아 아무런 동작을 하지 않음 "{% endcomment %}
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">can</h2>
+                        <p class="text-gray-500">{{can}} 건</p>{% comment "" %}item_database에 존재하는 can수를 세 view함수에서 can으로 저장한 can이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="?odkind=paper"id='paper-link'> {% comment  %}"href 는 해당하는 경로로 이동하는데 #이라는 주소는 정의해놓지 않아 아무런 동작을 하지 않음 "{% endcomment %}
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">paper</h2>
+                        <p class="text-gray-500">{{paper}} 건</p>{% comment "" %}item_database에 존재하는 paper수를 세 view함수에서 paper으로 저장한 paper이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="?odkind=plasticlabel"id='plasticlabel-link'> {% comment  %}"href 는 해당하는 경로로 이동하는데 #이라는 주소는 정의해놓지 않아 아무런 동작을 하지 않음 "{% endcomment %}
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">plasticlabel</h2>
+                        <p class="text-gray-500">{{plasticlb}} 건</p>{% comment "" %}item_database에 존재하는 plasticlb수를 세 view함수에서 plasticlb으로 저장한 plastic이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="?odkind=nocapglass"id='nocapglass-link'> {% comment  %}"href 는 해당하는 경로로 이동하는데 #이라는 주소는 정의해놓지 않아 아무런 동작을 하지 않음 "{% endcomment %}
+                    <div class ="p-6 bg-white rounded-xl">
+                        <h2 class="text-2xl">nocapglass</h2>
+                        <p class="text-gray-500">{{glasscap}} 건</p>{% comment "" %}item_database에 존재하는 glasscap수를 세 view함수에서 glasscap으로 저장한 glasscap이라는 값을 표기{% endcomment %}
+                    </div>
+                </a>
+            </div>
+        </div>  
+    </div>
+    <h2 class='mb-12 mt-12 text-2xl text-center'>최근 재활용품</h2>
+    <div class ='m-6 grid grid-cols-3 gap-3 mb-6' id="recycle-container">
+        {% for data in recycle_data %}
+            {% if data.created_by|lower == user|lower %}
+                <div class="bg-gray rounded-xl flex flex-col">
+                    <div style="flex: 1;">
+                        <img src={{ data.image.url }} class='rounded-t-xl' style="width: 260px; height: 200px; object-fit: contain;">
+                    </div>
+    
+                    <div class ="p-6 bg-white rounded-b-xl" style="flex: 1;"> 
+                        <h2 class="text-2xl ">{{data.kind}}</h2>
+                        <p class="text-gray-500 ">인식개수: {{data.num}} </p>
+                        <p class="text-gray-300 mt-2 ">인식날짜: {{ data.created_at }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<script>
+    var urlParams = new URLSearchParams(window.location.search);
+    var odkind = urlParams.get('odkind');
+    var urlParamete = new URLSearchParams(window.location.search);
+    var dong = urlParamete.get('dong');
+    
+    // HTML 내부 요소 변경
+    if (odkind) {
+        // plastic에 따른 HTML 변경
+        var container = document.getElementById('recycle-container');
+        container.innerHTML = '';
+        {% for data1 in oddata %}
+        var html = `
+            <div class="bg-gray rounded-xl flex flex-col">
+                <div style="flex: 1;">
+                    <img src="{{ data1.image.url }}" class='rounded-t-xl' style="width: 260px; height: 200px; object-fit: contain;">
+                </div>
+                <div class="p-6 bg-white rounded-b-xl" style="flex: 1;">
+                    <h2 class="text-2xl">{{ data1.kind }}</h2>
+                    <p class="text-gray-500 mt-2">인식개수: {{ data1.num }}</p>
+                    {%for ap in apt%} 
+                        {%if data1.created_by == ap.citizen%} 
+                            <p class="text-gray-500">{{ap.dong}}동 {{ap.ho}}호</p> 
+                        {%endif%}
+                    {%endfor%}
+                    <p class="text-gray-300 mt-2">인식날짜: {{ data1.created_at }}</p>
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
+        {% endfor %}
+    }
+
+    if (dong) {
+        var existingChart = document.getElementById('doughnutChart');
+        var container1 = document.getElementById('contentContainer');
+        container1.innerHTML = '';
+        if (existingChart) {
+            // 차트 인스턴스가 이미 존재하는 경우, 데이터를 업데이트합니다.
+            doughnutChart.data.datasets[0].data = [{{goodpercent_apt_dong}}, {{percent_error_dong}}];
+            doughnutChart.update();
+        }
+        var html1=`
+            <h2 class="text-2xl m-6 text-center">${dong}동 분리수거 통계</h2>
+            <div class="text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-1 text-center pl-6'>${dong}동 재활용품 수</p>
+                    <p class='m-1 text-right pr-6'>${dong}동 재활용률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{recycledong}} 건</p> {% comment  %}"cap이 없는 glass 와 label이 붙은 plasticlb 두 수를 합쳐 view함수에서 error라는 이름으로 html로 보내었다."{% endcomment %}
+                    <p class='m-2 text-right pr-6'>{{goodpercent_apt_dong}} %</p> {% comment  %}"error라는 데이터를 유저가 속해있는 아파트의 총 분리수거 개수로 나누고 100을 곱하여 %를 나타내었다."{% endcomment %}
+                </div>
+            </div>
+            <div class="text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>${dong}동 불량품목 수</p>
+                    <p class='m-2 text-right pr-6'>${dong}동 불량률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{errordong}} 건</p> {% comment  %}"cap이 없는 glass 와 label이 붙은 plasticlb 두 수를 합쳐 view함수에서 error라는 이름으로 html로 보내었다."{% endcomment %}
+                    <p class='m-2 text-right pr-6'>{{percent_error_dong}} %</p> {% comment  %}"error라는 데이터를 유저가 속해있는 아파트의 총 분리수거 개수로 나누고 100을 곱하여 %를 나타내었다."{% endcomment %}
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>개인 재활용품 수</p>
+                    <p class='m-2 text-right pr-6'>개인 재활용률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{public_good}} 건</p> 
+                    <p class='m-2 text-right pr-6'>{{public_good_data}} %</p> 
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 text-center pl-6'>개인 불량품목 수</p>
+                    <p class='m-2 text-right pr-6'>개인 불량률</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 text-center pl-12'>{{public_error}} 건</p> 
+                    <p class='m-2 text-right pr-6'>{{public_percent}} %</p> 
+                </div>
+            </div>
+            <div class="mt-6 text-center bg-gray-50 rounded-xl m-6">
+                <div class="flex justify-between font-semibold text-black">
+                    <p class='m-2 pl-6'>지불 관리비</p>
+                </div>
+                <nav class="flex justify-between items-center border-b border-gray-200"></nav>
+                <div class="flex justify-between font-semibold text-red-500">
+                    <p class='m-2 pl-12'>{{citizenpay}} 원</p> 
+                </div>
+            </div>
+        `;
+        container1.innerHTML += html1;
+    }
+    
+</script>
+{%endblock%}

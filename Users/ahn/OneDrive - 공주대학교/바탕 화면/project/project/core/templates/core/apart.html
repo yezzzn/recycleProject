@@ -1,0 +1,27 @@
+{% extends 'core/base.html'%}
+
+{% block title%}아파트 입력{%endblock%}
+
+{% block content%}
+<div class="w-1/2 my-6  mx-auto p-6 bg-gray-100 rounded-xl">
+    <h1 class="mb-6 text-3xl">아파트 입력 </h1>
+    <form method="post" action="."> {% comment %} post방식 사용을 위한 선언과 csrf 토큰 허용  {% endcomment %}
+        {% csrf_token%}
+
+        <div class="m-3">
+            <label class="inline-block mb-2">소속한 아파트 이름을 입력하세요</label><br>
+            {{form.apartment}}
+        </div>
+        <div class='m-3'>
+            <label class="inline-block mb-2">동 입력</label><br>
+            {{form.dong}}
+        </div>
+        <div class='m-3'>
+            <label class="inline-block mb-2">호 입력</label><br>
+            {{form.ho}}
+        </div>
+
+        <button class="mt-4 py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">완료</button>
+    </form>
+</div>
+{% endblock %}
